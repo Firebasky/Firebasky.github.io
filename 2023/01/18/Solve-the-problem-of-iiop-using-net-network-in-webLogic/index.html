@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="炎热短暂的夏天，阳光灿烂太耀眼，人来疯们来人前，光脚跳起舞 0x00 介绍在weblogic反序列化的利用中存在t3和iiop两个协议，当然iiop协议比t3复杂一些，但是有一些漏洞就是需要iiop协议去利用。那么就存在一个问题？也就是NAT网络问题因为返回的host和port是内网的地址导致访问不了利用失败。 0x01 解决方法在2022年自己开发weblogic利用的时候对于iiop协议的利用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="解决webLogic中iiop利用net网络问题">
+<meta property="og:url" content="http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/index.html">
+<meta property="og:site_name" content="一往无前虎山行">
+<meta property="og:description" content="炎热短暂的夏天，阳光灿烂太耀眼，人来疯们来人前，光脚跳起舞 0x00 介绍在weblogic反序列化的利用中存在t3和iiop两个协议，当然iiop协议比t3复杂一些，但是有一些漏洞就是需要iiop协议去利用。那么就存在一个问题？也就是NAT网络问题因为返回的host和port是内网的地址导致访问不了利用失败。 0x01 解决方法在2022年自己开发weblogic利用的时候对于iiop协议的利用">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s1.ax1x.com/2023/01/18/pS3oRaR.png">
+<meta property="article:published_time" content="2023-01-18T12:11:20.951Z">
+<meta property="article:modified_time" content="2023-01-18T12:21:25.026Z">
+<meta property="article:author" content="Firebasky">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="武器化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.ax1x.com/2023/01/18/pS3oRaR.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>解决webLogic中iiop利用net网络问题</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="القائمة"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="القائمة"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="الأعلى" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://erroratao.github.io/">项目</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/06/04/ljctr-wp/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/&text=解决webLogic中iiop利用net网络问题"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/&title=解决webLogic中iiop利用net网络问题"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/&is_video=false&description=解决webLogic中iiop利用net网络问题"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=解决webLogic中iiop利用net网络问题&body=Check out this article: http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/&title=解决webLogic中iiop利用net网络问题"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/&title=解决webLogic中iiop利用net网络问题"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/&title=解决webLogic中iiop利用net网络问题"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/&title=解决webLogic中iiop利用net网络问题"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/&name=解决webLogic中iiop利用net网络问题&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/&t=解决webLogic中iiop利用net网络问题"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">0x00 介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95"><span class="toc-number">2.</span> <span class="toc-text">0x01 解决方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0X02-%E5%8F%82%E8%80%83"><span class="toc-number">3.</span> <span class="toc-text">0X02 参考</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">0x03 总结</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        解决webLogic中iiop利用net网络问题
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Firebasky</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-01-18T12:11:20.951Z" itemprop="datePublished">2023-01-18</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/java/" rel="tag">java</a>, <a class="tag-link-link" href="/tags/%E6%AD%A6%E5%99%A8%E5%8C%96/" rel="tag">武器化</a>
+    </div>
+
+
+	  
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>炎热短暂的夏天，阳光灿烂太耀眼，人来疯们来人前，光脚跳起舞</p>
+<h2 id="0x00-介绍"><a href="#0x00-介绍" class="headerlink" title="0x00 介绍"></a>0x00 介绍</h2><p>在weblogic反序列化的利用中存在t3和iiop两个协议，当然iiop协议比t3复杂一些，但是有一些漏洞就是需要iiop协议去利用。那么就存在一个问题？也就是NAT网络问题因为返回的host和port是内网的地址导致访问不了利用失败。</p>
+<h2 id="0x01-解决方法"><a href="#0x01-解决方法" class="headerlink" title="0x01 解决方法"></a>0x01 解决方法</h2><p>在2022年自己开发weblogic利用的时候对于iiop协议的利用是采用模拟协议的方法。(非常难受)</p>
+<p>今天在看到 Weblogic ForeignOpaqueReference 反序列化远程代码执行漏洞（CVE-2023-21839）的时候也是iiop的利用（当然t3也可以）就想了一个小方法去解决net网络的问题。</p>
+<p>我们定义一个targetInfo的类传递host和port</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">targetInfo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String host;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">int</span> port;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">targetInfo</span><span class="params">(String host,<span class="type">int</span> port)</span> &#123;</span><br><span class="line">        Info.host = host;</span><br><span class="line">        Info.port = port;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在运行程序的时候new targetInfo这个对象，之后修改 <strong>weblogic.iiop.IOPProfile</strong>代码，直接在idea里面重写这个类。修改的地方如下</p>
+<p><img src="https://s1.ax1x.com/2023/01/18/pS3oRaR.png"></p>
+<p>之后就可以正常的利用了。</p>
+<h2 id="0X02-参考"><a href="#0X02-参考" class="headerlink" title="0X02 参考"></a>0X02 参考</h2><p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7498">https://xz.aliyun.com/t/7498</a></p>
+<h2 id="0x03-总结"><a href="#0x03-总结" class="headerlink" title="0x03 总结"></a>0x03 总结</h2><p>简单的是记录一下这个问题，因为之前写iiop协议的时候太难受了。</p>
+<p>在武器化的开发中基本上有这个依赖，我们就可以直接修改不影响程序运行。可以一劳永逸的解决iiop协议中的net网络问题。</p>
+<p>在说一句，可以简单的使用iiop协议了，那是不是可以将t3的利用给替换了呢？！</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://erroratao.github.io/">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">0x00 介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95"><span class="toc-number">2.</span> <span class="toc-text">0x01 解决方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0X02-%E5%8F%82%E8%80%83"><span class="toc-number">3.</span> <span class="toc-text">0X02 参考</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">0x03 总结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/&text=解决webLogic中iiop利用net网络问题"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/&title=解决webLogic中iiop利用net网络问题"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/&is_video=false&description=解决webLogic中iiop利用net网络问题"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=解决webLogic中iiop利用net网络问题&body=Check out this article: http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/&title=解决webLogic中iiop利用net网络问题"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/&title=解决webLogic中iiop利用net网络问题"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/&title=解决webLogic中iiop利用net网络问题"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/&title=解决webLogic中iiop利用net网络问题"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/&name=解决webLogic中iiop利用net网络问题&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/&t=解决webLogic中iiop利用net网络问题"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2023
+    Firebasky
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://erroratao.github.io/">项目</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
