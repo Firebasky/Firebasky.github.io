@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="我是个沉默不语的靠着墙壁晒太阳的过客 介绍&amp;问题在这里简单的介绍一下自己的知识星球《java安全share》  Q: 为什么会有它呢? A: 我喜欢知识星球的风格可以利用非常少的碎片时间来学精华的东西，而且也可以当做app上的笔记学习，还可以和很多师傅共同学习交流，于是它诞生了。  Q:那么这个星球有什么可以学到的呢? A:自己会在里面分享没有公开漏洞的一些细节、POC、EXP，0day挖">
+<meta property="og:type" content="article">
+<meta property="og:title" content="知识星球介绍">
+<meta property="og:url" content="http://example.com/2023/03/11/zsxq-introduce/index.html">
+<meta property="og:site_name" content="一往无前虎山行">
+<meta property="og:description" content="我是个沉默不语的靠着墙壁晒太阳的过客 介绍&amp;问题在这里简单的介绍一下自己的知识星球《java安全share》  Q: 为什么会有它呢? A: 我喜欢知识星球的风格可以利用非常少的碎片时间来学精华的东西，而且也可以当做app上的笔记学习，还可以和很多师傅共同学习交流，于是它诞生了。  Q:那么这个星球有什么可以学到的呢? A:自己会在里面分享没有公开漏洞的一些细节、POC、EXP，0day挖">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://user-images.githubusercontent.com/63966847/214033050-87bdd0f8-4982-4aac-b79d-a5b6d0f107b9.png">
+<meta property="article:published_time" content="2023-03-11T05:45:15.155Z">
+<meta property="article:modified_time" content="2023-03-11T06:21:11.659Z">
+<meta property="article:author" content="Firebasky">
+<meta property="article:tag" content="知识星球">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/63966847/214033050-87bdd0f8-4982-4aac-b79d-a5b6d0f107b9.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>知识星球介绍</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="القائمة"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="القائمة"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="الأعلى" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://erroratao.github.io/">项目</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/01/18/Solve-the-problem-of-iiop-using-net-network-in-webLogic/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/03/11/zsxq-introduce/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/03/11/zsxq-introduce/&text=知识星球介绍"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/03/11/zsxq-introduce/&title=知识星球介绍"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/03/11/zsxq-introduce/&is_video=false&description=知识星球介绍"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=知识星球介绍&body=Check out this article: http://example.com/2023/03/11/zsxq-introduce/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/03/11/zsxq-introduce/&title=知识星球介绍"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/03/11/zsxq-introduce/&title=知识星球介绍"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/03/11/zsxq-introduce/&title=知识星球介绍"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/03/11/zsxq-introduce/&title=知识星球介绍"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/03/11/zsxq-introduce/&name=知识星球介绍&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/03/11/zsxq-introduce/&t=知识星球介绍"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D-amp-%E9%97%AE%E9%A2%98"><span class="toc-number">1.</span> <span class="toc-text">介绍&amp;问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%98%9F%E4%B8%BB%E6%83%B3%E8%AF%B4"><span class="toc-number">2.</span> <span class="toc-text">星主想说</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        知识星球介绍
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Firebasky</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-03-11T05:45:15.155Z" itemprop="datePublished">2023-03-11</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83/" rel="tag">知识星球</a>
+    </div>
+
+
+	  
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>我是个沉默不语的靠着墙壁晒太阳的过客</p>
+<h2 id="介绍-amp-问题"><a href="#介绍-amp-问题" class="headerlink" title="介绍&amp;问题"></a>介绍&amp;问题</h2><p>在这里简单的介绍一下自己的知识星球<a target="_blank" rel="noopener" href="https://t.zsxq.com/0bQq6L5xn">《java安全share》</a></p>
+<hr>
+<p>Q: 为什么会有它呢?</p>
+<p>A: 我喜欢知识星球的风格可以利用非常少的碎片时间来学精华的东西，而且也可以当做app上的笔记学习，还可以和很多师傅共同学习交流，于是它诞生了。</p>
+<hr>
+<p>Q:那么这个星球有什么可以学到的呢?</p>
+<p>A:自己会在里面分享没有公开漏洞的一些细节、POC、EXP，0day挖掘的思路，历史漏洞武器化的开发思路和工具利用（一发入魂），webshell免杀思路，漏洞分析，静态分析，还有java安全的入门的部分文章。大部分是java相关的安全，但是仅仅是java？肯定不是，还有CTF，php安全，trick，windows等。在这里我保证你能学到东西。如果不能你来锤我。</p>
+<hr>
+<p>Q:这个星球是不是割韭菜？</p>
+<p>A:个人认为不是，为什么呢。因为自己分享的东西都是经过思考和总结的，天下没有免费的午餐，你出钱我提供服务这就是交易。而且我保证该星球会持续更新，个人是对安全技术非常感兴趣的。个人也会保持持续的学习状态。</p>
+<hr>
+<p>Q:星球分享的东西都是精华的？</p>
+<p>A:当然不是每个都是精华的，因为个人也是在持续学习的状态，不敢保证不出错误每一个都精华。但是敢保证其中的一个肯定对你有帮助，如果目前没有，那就拭目以待。</p>
+<hr>
+<p>Q:这个星球比其他的星球有什么优势？</p>
+<p>A:该星球大部分是java安全相关的知识，这一点可能比其他星球更加明确一些(这部分主要是看你自己对什么感兴趣吧)。</p>
+<h2 id="星主想说"><a href="#星主想说" class="headerlink" title="星主想说"></a>星主想说</h2><p>真心你能在该星球学到知识，并且也分享出来大家一起学习，共同进步。</p>
+<p><img src="https://user-images.githubusercontent.com/63966847/214033050-87bdd0f8-4982-4aac-b79d-a5b6d0f107b9.png" alt="image"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://erroratao.github.io/">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D-amp-%E9%97%AE%E9%A2%98"><span class="toc-number">1.</span> <span class="toc-text">介绍&amp;问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%98%9F%E4%B8%BB%E6%83%B3%E8%AF%B4"><span class="toc-number">2.</span> <span class="toc-text">星主想说</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/03/11/zsxq-introduce/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/03/11/zsxq-introduce/&text=知识星球介绍"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/03/11/zsxq-introduce/&title=知识星球介绍"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/03/11/zsxq-introduce/&is_video=false&description=知识星球介绍"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=知识星球介绍&body=Check out this article: http://example.com/2023/03/11/zsxq-introduce/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/03/11/zsxq-introduce/&title=知识星球介绍"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/03/11/zsxq-introduce/&title=知识星球介绍"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/03/11/zsxq-introduce/&title=知识星球介绍"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/03/11/zsxq-introduce/&title=知识星球介绍"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/03/11/zsxq-introduce/&name=知识星球介绍&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/03/11/zsxq-introduce/&t=知识星球介绍"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2023
+    Firebasky
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://erroratao.github.io/">项目</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
